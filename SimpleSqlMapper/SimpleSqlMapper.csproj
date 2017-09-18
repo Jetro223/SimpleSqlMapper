@@ -3,12 +3,14 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
     <PackageId>SimpleSqlMapper</PackageId>
-    <PackageVersion>1.0.0</PackageVersion>
+    <PackageVersion>1.0.1</PackageVersion>
     <Authors>Axel Schulze</Authors>
-    <Description>Simple mapper from SQL Server data to POCOs.</Description>
+    <Description>Simple mapper from SQL Server data (stored procedures or SQL queries) to Objects.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>First release</PackageReleaseNotes>
-    <PackageTags>sqlserver sqlmapper SQL Mapper</PackageTags>
+    <PackageTags>SQL Mapper SQLServer</PackageTags>
+    <PackageProjectUrl>https://github.com/Jetro223/SimpleSqlMapper</PackageProjectUrl>
+    <PackageReleaseNotes>Added default ConnectionString from config</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
