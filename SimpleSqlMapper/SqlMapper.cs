@@ -134,7 +134,7 @@ namespace SimpleSqlMapper
                     // wenn es ein Property im Ergebnis und im Typ gibt, dann zuweisen
                     foreach (var prop in props)
                     {
-                        if (row.ContainsKey(prop.Name))
+                        if (row.ContainsKey(prop.Name) && row[prop.Name] != DBNull.Value)
                         {
                             prop.SetValue(obj, row[prop.Name]);
                         }
