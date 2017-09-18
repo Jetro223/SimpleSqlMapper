@@ -22,11 +22,12 @@ namespace SimpleSqlMapper
         /// <summary>
         /// Not implemented yet
         /// </summary>
-        public bool IsCaseSensitive {
+        public bool IsCaseSensitive
+        {
             get => throw new NotImplementedException();
             set => throw new NotImplementedException();
         }
-        
+
         /// <summary>
         /// Create an instance of the SqlMapper
         /// </summary>
@@ -59,7 +60,7 @@ namespace SimpleSqlMapper
         public int ExecuteNonQuery(string command, SqlCommandType commandType, dynamic param = null)
         {
             SqlConnection conn = null;
-            
+
             try
             {
                 conn = new SqlConnection(ConnectionString);
@@ -136,7 +137,10 @@ namespace SimpleSqlMapper
                     {
                         if (row.ContainsKey(prop.Name) && row[prop.Name] != DBNull.Value)
                         {
-                            prop.SetValue(obj, row[prop.Name]);
+                            var targetType = prop.PropertyType.IsNullableType() ? Nullable.GetUnderlyingType(prop.PropertyType) : prop.PropertyType;
+                            var convertedValue = Convert.ChangeType(row[prop.Name], targetType);
+
+                            prop.SetValue(obj, convertedValue, null);
                         }
                     }
 

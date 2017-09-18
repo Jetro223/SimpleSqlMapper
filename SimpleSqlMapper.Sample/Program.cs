@@ -30,6 +30,12 @@ namespace SimpleSqlMapper.Sample
                 Console.WriteLine(data.ToString());
             }
 
+            var dataList3 = r2.GetList<DataClass>("SELECT '1' As IntValue, 2 AS StringValue, NULL As DateValue, 1 AS BitValue, '12.2' AS DecimalValue", SqlCommandType.QueryText);
+
+            foreach (var data in dataList3)
+            {
+                Console.WriteLine(data.ToString());
+            }
             var rowCount = r2.ExecuteNonQuery("SELECT 1 FROM sys.objects", SqlCommandType.QueryText);
             Console.WriteLine($"Affected {rowCount} rows");
 
