@@ -138,9 +138,16 @@ namespace SimpleSqlMapper
                         if (row.ContainsKey(prop.Name) && row[prop.Name] != DBNull.Value)
                         {
                             var targetType = prop.PropertyType.IsNullableType() ? Nullable.GetUnderlyingType(prop.PropertyType) : prop.PropertyType;
-                            var convertedValue = Convert.ChangeType(row[prop.Name], targetType);
-
-                            prop.SetValue(obj, convertedValue, null);
+                            try
+                            {
+                                var convertedValue = Convert.ChangeType(row[prop.Name], targetType);
+                                prop.SetValue(obj, convertedValue, null);
+                            }
+                            catch (Exception ex)
+                            {
+                                throw new Exception($"Could not convert database field '{prop.Name}' to {targetType.FullName}. ", ex);
+                            }
+                            
                         }
                     }
 
