@@ -50,6 +50,36 @@ namespace SimpleSqlMapper
         }
 
         /// <summary>
+        /// Executes SQL without returning a resultset
+        /// </summary>
+        /// <param name="command">SQL command or stored procedure</param>
+        /// <param name="commandType">CommantType</param>
+        /// <param name="param">A dynamic object containing parameters, e.g. new { para_Value = 12 }</param>
+        /// <returns>Number of rows affected</returns>
+        public int ExecuteNonQuery(string command, SqlCommandType commandType, dynamic param = null)
+        {
+            SqlConnection conn = null;
+            
+            try
+            {
+                conn = new SqlConnection(ConnectionString);
+                conn.Open();
+
+                SqlCommand cmd = new SqlCommand(command, conn) { CommandType = commandType == SqlCommandType.StoredProcedure ? CommandType.StoredProcedure : CommandType.Text };
+
+                cmd = AddParameters(cmd, param);
+
+                // Ausführen
+                var rowCount = cmd.ExecuteNonQuery();
+                return rowCount;
+            }
+            finally
+            {
+                conn?.Close();
+            }
+        }
+
+        /// <summary>
         /// Returns a List of the specified type from a stored procedure
         /// Column names in the result set must match the property names of the type
         /// </summary>
@@ -82,16 +112,7 @@ namespace SimpleSqlMapper
 
                 SqlCommand cmd = new SqlCommand(command, conn) { CommandType = commandType == SqlCommandType.StoredProcedure ? CommandType.StoredProcedure : CommandType.Text };
 
-                // Parameter aus dynamic lesen und als cmdParameters einfügen
-                PropertyInfo[] sqlParameter = param?.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
-
-                if (sqlParameter != null)
-                {
-                    foreach (var propertyInfo in sqlParameter)
-                    {
-                        cmd.Parameters.Add(new SqlParameter($@"{propertyInfo.Name}", param.GetType().GetProperty(propertyInfo.Name).GetValue(param, null)));
-                    }
-                }
+                cmd = AddParameters(cmd, param);
 
                 // Ausführen
                 rdr = cmd.ExecuteReader();
@@ -130,6 +151,22 @@ namespace SimpleSqlMapper
                 conn?.Close();
                 rdr?.Close();
             }
+        }
+
+        private SqlCommand AddParameters(SqlCommand sqlCommand, dynamic param = null)
+        {
+            // Parameter aus dynamic lesen und als cmdParameters einfügen
+            PropertyInfo[] sqlParameter = param?.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
+            if (sqlParameter != null)
+            {
+                foreach (var propertyInfo in sqlParameter)
+                {
+                    sqlCommand.Parameters.Add(new SqlParameter($@"{propertyInfo.Name}", param.GetType().GetProperty(propertyInfo.Name).GetValue(param, null)));
+                }
+            }
+
+            return sqlCommand;
         }
     }
 }

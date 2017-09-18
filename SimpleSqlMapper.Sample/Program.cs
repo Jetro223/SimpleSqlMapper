@@ -30,6 +30,9 @@ namespace SimpleSqlMapper.Sample
                 Console.WriteLine(data.ToString());
             }
 
+            var rowCount = r2.ExecuteNonQuery("SELECT 1 FROM sys.objects", SqlCommandType.QueryText);
+            Console.WriteLine($"Affected {rowCount} rows");
+
             Console.ReadLine();
         }
     }
