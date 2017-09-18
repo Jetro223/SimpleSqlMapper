@@ -1,28 +1,12 @@
 ﻿using System;
-using System.Data;
 
 namespace SimpleSqlMapper.Sample
 {
-    public class DataClass
-    {
-        public int IntValue { get; set; }
-        public string StringValue { get; set; }
-        public DateTime DateValue { get; set; }
-        public bool BitValue { get; set; }
-        public decimal DecimalValue { get; set; }
-
-        public override string ToString()
-        {
-            return $"IntValue: {IntValue} StringValue: {StringValue} DateValue: {DateValue} BitValue: {BitValue} DecimalValue: {DecimalValue}";
-        }
-    }
-
     class Program
     {
         static void Main(string[] args)
         {
             var r = new SqlMapper("Server=localhost;Database=DynamicDatabaseTest;User Id=simplesqlmapper;Password=simplesqlmapper");
-            r.IsCaseSensitive = false;
             var dataList = r.GetListFromStoredProcedure<DataClass>("[sproc_Test_Dynamic]"
                 , new
                 {
@@ -33,7 +17,8 @@ namespace SimpleSqlMapper.Sample
                     para_decimal = 12.555
                 });
 
-            var dataList2 = r.GetList<DataClass>("SELECT * FROM TestTable", CommandType.Text);
+            var r2 = new SqlMapper();
+            var dataList2 = r2.GetList<DataClass>("SELECT * FROM TestTable", SqlCommandType.QueryText);
 
             foreach (var data in dataList)
             {

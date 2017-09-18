@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Dynamic;
@@ -13,20 +14,39 @@ namespace SimpleSqlMapper
     /// </summary>
     public class SqlMapper
     {
-        private string _connectionString;
+        /// <summary>
+        /// The ConnectionString used to connect to SqlServer
+        /// </summary>
+        public string ConnectionString { get; set; }
+
         /// <summary>
         /// Not implemented yet
         /// </summary>
-        public bool IsCaseSensitive { get; set; }
-
+        public bool IsCaseSensitive {
+            get => throw new NotImplementedException();
+            set => throw new NotImplementedException();
+        }
+        
         /// <summary>
         /// Create an instance of the SqlMapper
         /// </summary>
         /// <param name="connectionString">Connectionstring to SQL Server</param>
         public SqlMapper(string connectionString)
         {
-            _connectionString = connectionString;
-            IsCaseSensitive = true;
+            ConnectionString = connectionString;
+        }
+
+        /// <summary>
+        /// Create an instance of the SqlMapper using the connectionstring with the name SqlMapperDefaultConnection
+        /// </summary>
+        public SqlMapper()
+        {
+            var connectionString = ConfigurationManager.ConnectionStrings["SqlMapperDefaultConnection"]?.ConnectionString;
+
+            if (string.IsNullOrEmpty(connectionString))
+                throw new Exception("No connectionstring with name \"SqlMapperDefaultConnection\" in config. Please set this connectionstring or use the constructor with the connectionstring parameter");
+
+            ConnectionString = connectionString;
         }
 
         /// <summary>
@@ -39,7 +59,7 @@ namespace SimpleSqlMapper
         /// <returns></returns>
         public List<T> GetListFromStoredProcedure<T>(string procedureName, dynamic param = null)
         {
-            return GetList<T>(procedureName, CommandType.StoredProcedure, param);
+            return GetList<T>(procedureName, SqlCommandType.StoredProcedure, param);
         }
 
         /// <summary>
@@ -50,17 +70,17 @@ namespace SimpleSqlMapper
         /// <param name="commandType">CommandType</param>
         /// <param name="param">A dynamic object containing parameters, e.g. new { para_Value = 12 }</param>
         /// <returns></returns>
-        public List<T> GetList<T>(string command, CommandType commandType, dynamic param = null)
+        public List<T> GetList<T>(string command, SqlCommandType commandType, dynamic param = null)
         {
             SqlConnection conn = null;
             SqlDataReader rdr = null;
 
             try
             {
-                conn = new SqlConnection(_connectionString);
+                conn = new SqlConnection(ConnectionString);
                 conn.Open();
 
-                SqlCommand cmd = new SqlCommand(command, conn) { CommandType = commandType };
+                SqlCommand cmd = new SqlCommand(command, conn) { CommandType = commandType == SqlCommandType.StoredProcedure ? CommandType.StoredProcedure : CommandType.Text };
 
                 // Parameter aus dynamic lesen und als cmdParameters einfügen
                 PropertyInfo[] sqlParameter = param?.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
